@@ -51,8 +51,10 @@ char* wl_print(struct WlObject *o) {
     break;
 
   case WL_TINT:
-    printf("int=%d\n", o->inum);
-    break;
+    result_len = 256;
+    result = (char *)malloc(result_len);
+    snprintf(result, result_len, "%d", o->inum);
+    return result;
 
   default:
     printf("error!!!!!\n");
