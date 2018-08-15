@@ -26,18 +26,24 @@ char* wl_print(struct WlObject *o) {
   size_t result_len;
   char *scar;
   char *scdr;
+  const char *s_nil = "nil";
 
   switch (o->type) {
 
   case WL_TNIL:
-    return "nil";
+    result_len = sizeof(&s_nil);
+    result = (char *)malloc(result_len);
+    strncpy(result, s_nil, result_len);
+    return result;
 
   case WL_TCONS:
     scar = wl_print(o->car);
     scdr = wl_print(o->cdr);
-    result_len = strlen("( . )") + strlen(scar) + strlen(scdr) + 1;
+    result_len = strlen(scar) + strlen(scdr) + 5 + 1;
     result = (char *)malloc(result_len);
     snprintf(result, result_len, "(%s . %s)", scar, scdr);
+    free(scar);
+    free(scdr);
     return result;
 
   case WL_TSYMBOL:
