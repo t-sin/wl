@@ -2,24 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-enum WlType {
-  WL_TNIL = 0,
-  WL_TCONS,
-  WL_TSYMBOL,
-  WL_TINT
-};
+#include "wl.h"
 
-struct WlSymbol {
-  char *name;
-};
-
-struct WlObject {
-  enum WlType type;
-  struct WlObject *car;
-  struct WlObject *cdr;
-  struct WlSymbol *sym;
-  int inum;
-};
 
 struct WlObject* wl_read(const char *input);
 
