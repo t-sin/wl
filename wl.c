@@ -72,6 +72,7 @@ char* wl_print(struct WlObject *o) {
 int main(void) {
   struct WlObject cons, nil;
   struct WlObject car, cdr;
+  nil.type = WL_TNIL;
   car.type = WL_TCONS;
   car.car = &nil;
   car.cdr = &nil;
