@@ -7,7 +7,9 @@
 
 struct WlObject* wl_read(const char *input);
 
-struct WlObject* wl_eval(struct WlObject *o);
+struct WlObject* wl_eval(struct WlObject *o) {
+  return o;
+}
 
 /*
  * `wl_print()` returns char* that string representation of `o`.
@@ -65,6 +67,6 @@ int main(void) {
   cons.car = &car;
   cons.cdr = &cdr;
 
-  puts(wl_print(&cons));
+  puts(wl_print(wl_eval(&cons)));
   return 0;
 }
