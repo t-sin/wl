@@ -21,6 +21,10 @@ struct WlObject {
   int inum;
 };
 
+/*
+ * `wl_print()` returns char* that string representation of `o`.
+ * The pointer returned must be `free()`.
+ */
 char* wl_print(struct WlObject *o) {
   char *result;
   size_t result_len;
