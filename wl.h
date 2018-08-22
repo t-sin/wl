@@ -1,6 +1,5 @@
-#ifndef WL
-#define WL
-
+#ifndef wl_h
+#define wl_h
 
 enum WlType {
   WL_TNIL = 0,
