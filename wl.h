@@ -9,16 +9,16 @@ enum WlType {
   WL_TINT
 };
 
-struct WlSymbol {
+typedef struct {
   char *name;
-};
+} WlSymbol;
 
-struct WlObject {
+typedef struct WlObject {
   enum WlType type;
   struct WlObject *car;
   struct WlObject *cdr;
-  struct WlSymbol *sym;
+  WlSymbol *sym;
   int inum;
-};
+} WlObject;
 
 #endif

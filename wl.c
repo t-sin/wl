@@ -5,9 +5,9 @@
 #include "wl.h"
 
 
-struct WlObject* wl_read(const char *input);
+WlObject* wl_read(const char *input);
 
-struct WlObject* wl_eval(struct WlObject *o) {
+WlObject* wl_eval(WlObject *o) {
   return o;
 }
 
@@ -15,7 +15,7 @@ struct WlObject* wl_eval(struct WlObject *o) {
  * `wl_print()` returns char* that string representation of `o`.
  * The pointer returned must be `free()`.
  */
-char* wl_print(struct WlObject *o) {
+char* wl_print(WlObject *o) {
   char *result;
   size_t result_len;
   char *scar;
@@ -56,8 +56,8 @@ char* wl_print(struct WlObject *o) {
 }
 
 int main(void) {
-  struct WlObject cons, nil;
-  struct WlObject car, cdr;
+  WlObject cons, nil;
+  WlObject car, cdr;
   nil.type = WL_TNIL;
   car.type = WL_TCONS;
   car.car = &nil;
