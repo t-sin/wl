@@ -1,11 +1,9 @@
 #ifndef WL_SYMBOL
 #define WL_SYMBOL
 
-typedef struct {
-  char* name;
-} WlSymbol;
+#include "wl.h"
 
-// string -> hash code
+
 int hash(const char* name);
 
 typedef struct {
@@ -14,14 +12,11 @@ typedef struct {
 } WlSymTableEntry;
 
 typedef struct {
-  // hash code -> index
-  WlSymTableEntry hash_table;
-  // array of symbols
-  struct WlSymbol** symbols;
+  WlSymTableKey** key_table;
+  WlObject** values;
   int item_count;
   int not_null_count;
-  // hash_table.length = 2^d
-  int d;
+  int d;  // hash_table.length = 2^d
 } WlSymTable;
 
 WlSymTable* make_symtable();
