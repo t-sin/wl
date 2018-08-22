@@ -15,9 +15,9 @@ typedef struct {
 
 typedef struct WlObject {
   enum WlType type;
-  struct WlObject *car;
-  struct WlObject *cdr;
-  WlSymbol *sym;
+  struct WlObject* car;
+  struct WlObject* cdr;
+  WlSymbol* sym;
   int inum;
 } WlObject;
 
