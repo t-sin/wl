@@ -1,30 +1,33 @@
 #ifndef WL_SYMBOL
 #define WL_SYMBOL
 
-struct WlSymbol {
+typedef struct {
   char* name;
-};
-typedef WlSymbol tWlSymbol;
+} WlSymbol;
 
 // string -> hash code
 int hash(const char* name);
 
-struct WlSymTable {
+typedef struct {
+  int hash;
+  WlSymbol* symbol;
+} WlSymTableEntry;
+
+typedef struct {
   // hash code -> index
-  int* hash_table;
+  WlSymTableEntry hash_table;
   // array of symbols
   struct WlSymbol** symbols;
   int item_count;
   int not_null_count;
   // hash_table.length = 2^d
   int d;
-};
-typedef WlSymTable tWlSymTable;
+} WlSymTable;
 
-tWlSymTable* make_symtable();
+WlSymTable* make_symtable();
 
-int add(tWlSymTable* table, tWlSymbol* s);
-struct WlSymbol* remove(tWlSymTable* table, tWlSymbol* s);
-struct WlSymbol* find(tWlSymTable* table, const char* name);
+int add(WlSymTable* table, WlSymbol* s);
+struct WlSymbol* remove(WlSymTable* table, WlSymbol* s);
+struct WlSymbol* find(WlSymTable* table, const char* name);
 
 #endif
