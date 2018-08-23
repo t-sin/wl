@@ -53,6 +53,7 @@ char* wl_print(WlObject* o) {
   default:
     printf("error!!!!!\n");
   }
+  return (void *)0;
 }
 
 int main(void) {
