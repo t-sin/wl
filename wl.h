@@ -5,13 +5,13 @@ enum WlType {
   WL_TNIL = 0,
   WL_TCONS,
   WL_TSYMBOL,
-  WL_TINT
+  WL_TINT,
+  WL_FUNCTION
 };
 
 typedef struct {
   char *name;
 } WlSymbol;
-
 
 typedef struct WlObject {
   enum WlType type;
@@ -30,7 +30,7 @@ typedef struct {
 } WlBindingKey;
 
 typedef struct {
-  WlBindingKeyy** key_table;
+  WlBindingKey** key_table;
   WlObject** value_table;
   int item_count;
   int not_null_count;
@@ -39,8 +39,8 @@ typedef struct {
 
 WlBinding* make_binding();
 
-int add(WlBinding* table, WlSymbol* s);
-WlBinding* remove(WlBinding* table, WlSymbol* s);
-WlBinding* find(WlBinding* table, const char* name);
+WlSymbol* intern(WlBinding* table, WlSymbol* s);
+WlBinding* unbind(WlBinding* b, WlSymbol* s);
+WlBinding* find(WlBinding* b, const char* name);
 
 #endif
