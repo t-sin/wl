@@ -2,11 +2,13 @@
 #define wl_object_h
 
 typedef enum {
-  WL_TNIL
-  WL_TCONS,
-  WL_TSYMBOL,
   WL_TINT,
-  WL_FUNCTION,
+  WL_TCHAR,
+  WL_TARRAY,
+  WL_TNIL,
+  WL_TSYMBOL,
+  WL_TCONS,
+  WL_FUNCTION
 } WlType;
 
 typedef struct WlCallStackFrame{
@@ -18,12 +20,20 @@ typedef struct WlObject {
   int id;
   enum WlType type;
   union {
+    int num;
+    unsigned int cp;
+    struct {
+      enum WlType a_type;
+      int a_size;
+      union {
+        struct Obj** array;
+        int** ch_array;
+    }
+    char** name;
     struct {
       struct WlObject* car;
       struct WlObject* cdr;
     };
-    char** name;
-    int num;
     struct {  // function (仮)
       WlType type;
       WlArgInfo arg;
