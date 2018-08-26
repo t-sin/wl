@@ -14,34 +14,27 @@ typedef struct WlCallStackFrame{
   WlBinding* binding;
 } WlCallStackFrame;
 
-typedef union WlObject {
-  struct {  // nil
-    WlType type;
-  } _nil;
-  struct {  // cons
-    WlType type;
-    union WlObject* car;
-    union WlObject* cdr;
-  } _cons;
-  struct {  // symbol
-    WlType type;
+typedef struct WlObject {
+  enum WlType type;
+  union {
+    struct {
+      struct WlObject* car;
+      struct WlObject* cdr;
+    };
     char** name;
-  } _sym;
-  struct {  // int
-    WlType type;
     int num;
-  } _int;
-  struct {  // function
-    WlType type;
-    WlArgInfo arg;
-    int** body;  // 仮
-  } _fn;
-  struct {  // clozure
-    WlType type;
-    WlArgInfo arg;
-    WlCallStackFrame* parent
-    int** body;  // 仮
-  } _fnc;
+    struct {  // function (仮)
+      WlType type;
+      WlArgInfo arg;
+      int** body;
+    }
+    struct {  // clozure (仮)
+      WlType type;
+      WlArgInfo arg;
+      WlCallStackFrame* parent
+      int** body;
+    }
+  }
 } WlObject;
 
 #endif
