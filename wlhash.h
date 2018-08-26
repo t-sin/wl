@@ -3,7 +3,9 @@
 
 #include "wlobject.h"
 
-int wl_hash(int id);
+#define WL_DEFAULT_TABLE_SIZE 8
+
+int hash(WlObject* o, int max_num);
 
 typedef struct {
   int hash;
@@ -19,10 +21,10 @@ typedef struct {
   int d;  // hash_table.length = 2^d
 } WlObjectTable;
 
-WlObjectTable* make_binding();
+WlObjectTable* make_table();
 
 WlObject* table_add(WlObjectTable* table, WlObject* o, int resize);
 WlObject* table_remove(WlObjectTable* table, WlObject* o);
-WlObject* find(WlObjectTable* table, WlObject* o);
+WlObject* table_find(WlObjectTable* table, WlObject* o);
 
 #endif
