@@ -15,6 +15,7 @@ typedef struct WlCallStackFrame{
 } WlCallStackFrame;
 
 typedef struct WlObject {
+  int id;
   enum WlType type;
   union {
     struct {
