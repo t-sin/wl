@@ -48,6 +48,12 @@ WlObjectTable* make_table() {
   return table;
 }
 
+void free_table(WlObjectTable* table) {
+  free(table->keys);
+  free(table->values);
+  free(table);
+}
+
 int _table_set_key(int size, WlTableKey* keys, int key_id, enum WlTableState state) {
   int hash_code = hash_id(key_id, size);
   WlTableKey* key;
@@ -135,6 +141,8 @@ int main(void) {
   table_print(table);
   printf("d: %d\n", table->d);
   printf("length: %d\n\n", table->item_count);
+
+  free_table(table);
 
   return 0;
 }

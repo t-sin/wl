@@ -30,6 +30,7 @@ typedef struct {
 } WlObjectTable;
 
 WlObjectTable* make_table();
+void free_table(WlObjectTable* table);
 
 WlObject* table_add(WlObjectTable* table, WlObject* k, WlObject* v);
 WlObject* table_remove(WlObjectTable* table, WlObject* o);
