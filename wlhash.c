@@ -75,8 +75,35 @@ WlObject* table_add(WlObjectTable* table, WlObject* k, WlObject* v) {
   }
 }
 
+WlObjectTable* table_resize(WlObjectTable* table) {
+  int new_size = (int)pow(2, table->d + 1);
+  WlTableKey* keys = (WlTableKey*)malloc(sizeof(WlTableKey) * new_size);
+  WlObject** values = (WlObject**)malloc(sizeof(WlObject) * new_size);
+  WlTableKey* key;
+  int hash_code, idx;
+
+  if (keys == NULL || values == NULL) {
     return NULL;
   }
+
+  for (int i=0; i<table_size(table); i++) {
+    key = table->keys + i;
+    if (key->state == WL_HASHTABLE_FILLED) {
+      idx = _table_set_key(new_size, keys, key->id, WL_HASHTABLE_FILLED);
+      if (idx == -1) {
+        free(keys);
+        free(values);
+        return NULL;
+      }
+      values[idx] = table->values[i];
+    }
+  }
+  free(table->keys);
+  free(table->values);
+  table->d++;
+  table->keys = keys;
+  table->values = values;
+  return table;
 }
 
 void table_print(WlObjectTable* table) {
