@@ -49,12 +49,52 @@ WlObjectTable* make_table() {
   return table;
 }
 
+WlObject* table_add(WlObjectTable* table, WlObject* k, WlObject* v, enum WlTableFulfilled resize_p) {
+  int hash_code = hash(k, table_size(table));
+  WlTableKey* key;
+
+  printf("hash code: %d\n", hash_code);
+  for (int i=0; hash_code+i<table_size(table); i++) {
+    key = table->keys[hash_code + i];
+    printf("  i: %d\n", i);
+
+    if (key->state == WL_HASHTABLE_NULL || key->state == WL_HASHTABLE_DELETED) {
+      key->id = k->id;
+      key->hash = hash_code;
+      key->state = WL_HASHTABLE_FILLED;
+      table->values[hash_code] = v;
+      (table->item_count)++;
+      return v;
+    }
+  }
+
+  if (resize_p == WL_HASHTABLE_ERROR) {
+    return NULL;
+  } else {
+    // TODO: resize hashtable...
+    return NULL;
+  }
+}
+
+void table_print(WlObjectTable* table) {
+  for (int i=0; i<table_size(table); i++) {
+    WlTableKey* key = table->keys[i];
+    WlObject* val = table->values[i];
+    if (key->state == WL_HASHTABLE_FILLED) {
+      printf("%d: %d\n", key->id,  val->id);
+    }
+  }
+}
 
 int main(void) {
-  WlObjectTable* table;
-  printf("before init: %x\n", (int)table);
-  table = make_table();
-  printf("after init: %x\n", (int)table);
+  WlObjectTable* table= make_table();
+  WlObject key, val;
+  key.id = 42;
+  val.id = 100;
+
+  table_add(table, &key, &val, 0);
+
+  table_print(table);
 
   return 0;
 }
