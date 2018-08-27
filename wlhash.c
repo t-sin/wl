@@ -20,7 +20,7 @@ WlObjectTable* make_table() {
   }
   table = (WlObjectTable*)mem;
 
-  table->d = WL_DEFALUT_TABLE_SIZE;
+  table->d = WL_DEFAULT_TABLE_SIZE;
   table->item_count = 0;
   table->not_null_count = 0;
 
