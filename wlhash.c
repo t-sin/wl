@@ -84,6 +84,22 @@ WlObject* table_add(WlObjectTable* table, WlObject* k, WlObject* v) {
   return v;
 }
 
+WlObject* table_remove(WlObjectTable* table, WlObject* k) {
+  int i = hash_obj(k, table_size(table));
+  WlTableKey* key = table->keys + i;
+
+  while (key->state != WL_HASHTABLE_NULL) {
+    if (key->state != WL_HASHTABLE_DELETED && key->state != WL_HASHTABLE_NULL) {
+      key->state = WL_HASHTABLE_DELETED;
+      table->item_count--;
+      if (8 * table->item_count < table_size(table)) table_resize(table);
+      return table->values[i];
+    }
+    i = (i == table_size(table)) ? 0 : i + 1;
+  }
+  return NULL;
+}
+
 WlObjectTable* table_resize(WlObjectTable* table) {
   int new_d = 1;
   WlTableKey* key;
@@ -145,6 +161,11 @@ int main(void) {
   table_resize(table);
   puts("resized\n\n");
 
+  table_print(table);
+  printf("d: %d\n", table->d);
+  printf("length: %d\n\n", table->item_count);
+
+  table_remove(table, &key);
   table_print(table);
   printf("d: %d\n", table->d);
   printf("length: %d\n\n", table->item_count);
