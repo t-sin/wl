@@ -7,8 +7,12 @@
 #include "wlobject.h"
 #include "wlhash.h"
 
-int hash(WlObject* o, int max_num) {
-  return o->id % max_num;
+int hash_id(int id, int max_num) {
+  return id % max_num;
+}
+
+int hash_obj(WlObject* o, int max_num) {
+  return hash_id(o->id, max_num);
 }
 
 #define table_size(t) ((int)pow(2, t->d))
@@ -44,29 +48,33 @@ WlObjectTable* make_table() {
   return table;
 }
 
-WlObject* table_add(WlObjectTable* table, WlObject* k, WlObject* v, enum WlTableFulfilled resize_p) {
-  int hash_code = hash(k, table_size(table));
+int _table_set_key(int size, WlTableKey* keys, int key_id, enum WlTableState state) {
+  int hash_code = hash_id(key_id, size);
   WlTableKey* key;
 
-  printf("hash code: %d\n", hash_code);
-  for (int i=0; hash_code+i<table_size(table); i++) {
-    key = table->keys + (hash_code + i);
-    printf("  i: %d\n", i);
-
+  for (int i=0; hash_code+i<size; i++) {
+    key = keys + (hash_code + i);
     if (key->state == WL_HASHTABLE_NULL || key->state == WL_HASHTABLE_DELETED) {
-      key->id = k->id;
+      key->id = key_id;
       key->hash = hash_code;
-      key->state = WL_HASHTABLE_FILLED;
-      table->values[hash_code] = v;
-      (table->item_count)++;
-      return v;
+      key->state = state;
+      return hash_code + i;
     }
   }
+  return -1;
+}
 
-  if (resize_p == WL_HASHTABLE_ERROR) {
+WlObject* table_add(WlObjectTable* table, WlObject* k, WlObject* v) {
+  int idx = _table_set_key(table_size(table), table->keys, k->id, WL_HASHTABLE_FILLED);
+  if (idx == -1) {
     return NULL;
   } else {
-    // TODO: resize hashtable...
+    table->values[idx] = v;
+    table->item_count++;
+    return v;
+  }
+}
+
     return NULL;
   }
 }

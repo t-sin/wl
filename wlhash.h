@@ -5,7 +5,8 @@
 
 #define WL_DEFAULT_TABLE_SIZE 8
 
-int hash(WlObject* o, int max_num);
+int hash_id(int id, int max_num);
+int hash_obj(WlObject* o, int max_num);
 
 enum WlTableState {
   WL_HASHTABLE_NULL,
@@ -35,7 +36,7 @@ typedef struct {
 
 WlObjectTable* make_table();
 
-WlObject* table_add(WlObjectTable* table, WlObject* k, WlObject* v, enum WlTableFulfilled resize);
+WlObject* table_add(WlObjectTable* table, WlObject* k, WlObject* v);
 WlObject* table_remove(WlObjectTable* table, WlObject* o);
 WlObject* table_find(WlObjectTable* table, WlObject* o);
 
