@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #include <stdio.h>
 
@@ -15,7 +14,7 @@ int hash_obj(WlObject* o, int max_num) {
   return hash_id(o->id, max_num);
 }
 
-#define table_size(t) ((int)pow(2, t->d))
+#define table_size(t) ((1<<t->d))
 
 WlObjectTable* make_table() {
   WlObjectTable* table;
@@ -54,59 +53,62 @@ void free_table(WlObjectTable* table) {
   free(table);
 }
 
-int _table_set_key(int size, WlTableKey* keys, int key_id, enum WlTableState state) {
-  int hash_code = hash_id(key_id, size);
-  WlTableKey* key;
-
-  for (int i=0; hash_code+i<size; i++) {
-    key = keys + (hash_code + i);
-    if (key->state == WL_HASHTABLE_NULL || key->state == WL_HASHTABLE_DELETED) {
-      key->id = key_id;
-      key->hash = hash_code;
-      key->state = state;
-      return hash_code + i;
+WlObject* table_find(WlObjectTable* table, WlObject* k) {
+  int i = hash_obj(k, table_size(table));
+  WlTableKey* key = table->keys + i;
+  while (key->state != WL_HASHTABLE_NULL) {
+    if (key->state != WL_HASHTABLE_DELETED && key->id == k->id) {
+      return table->values[i];
     }
+    i = (i == table_size(table) - 1) ? 0 : i + 1;
+    key = table->keys + i;
   }
-  return -1;
+  return NULL;
 }
 
 WlObject* table_add(WlObjectTable* table, WlObject* k, WlObject* v) {
-  int idx = _table_set_key(table_size(table), table->keys, k->id, WL_HASHTABLE_FILLED);
-  if (idx == -1) {
-    return NULL;
-  } else {
-    table->values[idx] = v;
-    table->item_count++;
-    return v;
+  if (table_find(table, k) != NULL) return NULL;
+  if (2 * (table->not_null_count + 1) > table_size(table)) table_resize(table);
+  int i = hash_obj(k, table_size(table));
+  WlTableKey* key = table->keys + i;
+
+  while (key->state != WL_HASHTABLE_NULL && key->state != WL_HASHTABLE_DELETED) {
+    i = (i == table_size(table) - 1) ? 0 : i + 1;
+    key = table->keys + i;
   }
+  if (key->state == WL_HASHTABLE_NULL) table->not_null_count++;
+  table->item_count++;
+  key->id = k->id;
+  key->state = WL_HASHTABLE_FILLED;
+  table->values[i] = v;
+  return v;
 }
 
 WlObjectTable* table_resize(WlObjectTable* table) {
-  int new_size = (int)pow(2, table->d + 1);
-  WlTableKey* keys = (WlTableKey*)malloc(sizeof(WlTableKey) * new_size);
-  WlObject** values = (WlObject**)malloc(sizeof(WlObject) * new_size);
+  int new_d = 1;
   WlTableKey* key;
-  int hash_code, idx;
+  WlTableKey* keys;
+  WlObject** values;
 
-  if (keys == NULL || values == NULL) {
-    return NULL;
-  }
+  while ((1<<new_d) < 3 * table->item_count) new_d++;
 
-  for (int i=0; i<table_size(table); i++) {
-    key = table->keys + i;
+  keys = (WlTableKey*)malloc(sizeof(WlTableKey) * (1<<new_d));
+  values = (WlObject**)malloc(sizeof(WlObject) * (1<<new_d));
+
+  for (int k=0; k<table_size(table); k++) {
+    key = table->keys + k;
     if (key->state == WL_HASHTABLE_FILLED) {
-      idx = _table_set_key(new_size, keys, key->id, WL_HASHTABLE_FILLED);
-      if (idx == -1) {
-        free(keys);
-        free(values);
-        return NULL;
-      }
-      values[idx] = table->values[i];
+      int i = hash_id(key->id, 1<<new_d);
+      while ((keys + i)->state != WL_HASHTABLE_NULL)
+        i = (i == (1<<new_d) - 1) ? 0 : i + 1;
+      keys[i].state = WL_HASHTABLE_FILLED;
+      keys[i].id = key->id;
+      values[i] = table->values[k];
     }
   }
   free(table->keys);
   free(table->values);
-  table->d++;
+  table->d = new_d;
   table->keys = keys;
   table->values = values;
   return table;
@@ -137,7 +139,12 @@ int main(void) {
   printf("d: %d\n", table->d);
   printf("length: %d\n\n", table->item_count);
 
+  printf("table[42] = %d\n", table_find(table, &key)->id);
+  printf("found\n\n");
+
   table_resize(table);
+  puts("resized\n\n");
+
   table_print(table);
   printf("d: %d\n", table->d);
   printf("length: %d\n\n", table->item_count);
