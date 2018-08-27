@@ -119,12 +119,22 @@ void table_print(WlObjectTable* table) {
 int main(void) {
   WlObjectTable* table= make_table();
   WlObject key, val;
+  WlObject key2, val2;
   key.id = 42;
   val.id = 100;
+  key2.id = 22;
+  val2.id = 200;
 
-  table_add(table, &key, &val, 0);
-
+  table_add(table, &key, &val);
+  table_add(table, &key2, &val2);
   table_print(table);
+  printf("d: %d\n", table->d);
+  printf("length: %d\n\n", table->item_count);
+
+  table_resize(table);
+  table_print(table);
+  printf("d: %d\n", table->d);
+  printf("length: %d\n\n", table->item_count);
 
   return 0;
 }
