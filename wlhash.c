@@ -32,18 +32,13 @@ WlObjectTable* make_table() {
     return NULL;
   }
   memset(mem, 0, sizeof(WlTableKey) * table_size(table));
-  table->keys = (WlTableKey**)mem;
-  for (int i=0; i<table_size(table); i++) {
-    mem = malloc(sizeof(WlTableKey));
-    if (mem == NULL) { return NULL; }
-    table->keys[i] = (WlTableKey*)mem;
-  }
+  table->keys = (WlTableKey*)mem;
 
-  mem = malloc(sizeof(WlObject) * table_size(table));
+  mem = malloc(sizeof(WlObject*) * table_size(table));
   if (mem == NULL) {
     return NULL;
   }
-  memset(mem, 0, sizeof(WlObject) * table_size(table));
+  memset(mem, 0, sizeof(WlObject*) * table_size(table));
   table->values = (WlObject**)mem;
 
   return table;
@@ -55,7 +50,7 @@ WlObject* table_add(WlObjectTable* table, WlObject* k, WlObject* v, enum WlTable
 
   printf("hash code: %d\n", hash_code);
   for (int i=0; hash_code+i<table_size(table); i++) {
-    key = table->keys[hash_code + i];
+    key = table->keys + (hash_code + i);
     printf("  i: %d\n", i);
 
     if (key->state == WL_HASHTABLE_NULL || key->state == WL_HASHTABLE_DELETED) {
@@ -78,10 +73,10 @@ WlObject* table_add(WlObjectTable* table, WlObject* k, WlObject* v, enum WlTable
 
 void table_print(WlObjectTable* table) {
   for (int i=0; i<table_size(table); i++) {
-    WlTableKey* key = table->keys[i];
+    WlTableKey key = table->keys[i];
     WlObject* val = table->values[i];
-    if (key->state == WL_HASHTABLE_FILLED) {
-      printf("%d: %d\n", key->id,  val->id);
+    if (key.state == WL_HASHTABLE_FILLED) {
+      printf("%d: %d\n", key.id,  val->id);
     }
   }
 }

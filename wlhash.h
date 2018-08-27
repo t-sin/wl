@@ -25,7 +25,7 @@ typedef struct {
 } WlTableKey;
 
 typedef struct {
-  WlTableKey** keys;
+  WlTableKey* keys;
   WlObject** values;
 
   int item_count;
