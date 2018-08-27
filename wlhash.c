@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #include <stdio.h>
@@ -32,12 +33,17 @@ WlObjectTable* make_table() {
   }
   memset(mem, 0, sizeof(WlTableKey) * table_size(table));
   table->keys = (WlTableKey**)mem;
+  for (int i=0; i<table_size(table); i++) {
+    mem = malloc(sizeof(WlTableKey));
+    if (mem == NULL) { return NULL; }
+    table->keys[i] = (WlTableKey*)mem;
+  }
 
   mem = malloc(sizeof(WlObject) * table_size(table));
   if (mem == NULL) {
     return NULL;
   }
-  memset(mem, 0, sizeof(WlTableKey) * table_size(table));
+  memset(mem, 0, sizeof(WlObject) * table_size(table));
   table->values = (WlObject**)mem;
 
   return table;
