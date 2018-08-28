@@ -38,18 +38,33 @@ typedef struct WlObject {
       struct WlObject* cdr;
     };
 
-    struct {  // function (仮)
+    struct {
       WlObject* args;
-      WlEnvironment* enclosure;
+      WlBinding* enclose;
       int** fn_body;
     };
   };
 } WlObject;
 
-typedef struct WlEnvironment {
-  struct WlEnvironment* parent;
-  WlObjectTable* var_table;
-  WlObjectTable* func_table;
-} WlEnvironment;
+WlObject* make_object(WlType type);
+void free_object(WlObject* o);
+
+#define IS_INT(o)    ((o)->type == WL_TINT)
+#define IS_CHAR(o)   ((o)->type == WL_TCHAR)
+#define IS_ARRAY(o)  ((o)->type == WL_TARRAY)
+#define IS_NIL(o)    ((o)->type == WL_TNIL)
+#define IS_SYM(o)    ((o)->type == WL_TSYMBOL)
+#define IS_CONS(o)   ((o)->type == WL_TCONS)
+#define IS_FUNC(o)   ((o)->type == WL_TFUNCTION)
+
+
+typedef struct WlBinding {
+  struct WlBinding* parent;
+  WlObjectTable* table;
+} WlBinding;
+
+WlBinding* make_binding(WlBinding* parent);
+void free_binding(WlBinding* b);
+
 
 #endif
