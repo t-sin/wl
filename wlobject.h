@@ -19,26 +19,32 @@ typedef enum {
 typedef struct WlObject {
   int id;
   WlType type;
+
   union {
     int num;
     unsigned int cp;
+
     struct {
       WlType a_type;
       int a_size;
       union {
-        struct Obj** array;
+        struct WlObject** array;
         int** ch_array;
       };
     };
+
     char** name;
+
     struct {
       struct WlObject* car;
       struct WlObject* cdr;
     };
+
     struct {  // function (仮)
 //      WlArgInfo arg;
       int** fn_body;
     };
+
     struct {  // clozure (仮)
 //      WlArgInfo arg;
 //      WlCallStackFrame* parent;
