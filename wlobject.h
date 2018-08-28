@@ -1,6 +1,9 @@
 #ifndef wl_object_h
 #define wl_object_h
 
+#include "wlhash.h"
+
+
 typedef enum {
   WL_TINT,
   WL_TCHAR,
@@ -10,11 +13,6 @@ typedef enum {
   WL_TCONS,
   WL_FUNCTION
 } WlType;
-
-// typedef struct WlCallStackFrame{
-//   struct WlCallStackFrame* parent;
-//   WlBinding* binding;
-// } WlCallStackFrame;
 
 typedef struct WlObject {
   int id;
@@ -41,16 +39,17 @@ typedef struct WlObject {
     };
 
     struct {  // function (仮)
-//      WlArgInfo arg;
+      WlObject* args;
+      WlEnvironment* enclosure;
       int** fn_body;
-    };
-
-    struct {  // clozure (仮)
-//      WlArgInfo arg;
-//      WlCallStackFrame* parent;
-      int** cl_body;
     };
   };
 } WlObject;
+
+typedef struct WlEnvironment {
+  struct WlEnvironment* parent;
+  WlObjectTable* var_table;
+  WlObjectTable* func_table;
+} WlEnvironment;
 
 #endif
