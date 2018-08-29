@@ -2,6 +2,14 @@
 
 He buried it to me, it's a nice walnut.
 
+## Goals
+
+- [ ] hash-tables
+- [ ] arrays
+- [ ] VM-based
+- [ ] reader
+- [ ] evaluator
+- [ ] package
 
 ## Q&A
 
