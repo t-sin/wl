@@ -1,4 +1,8 @@
-// kernel: a virtual machine for wl
+// * kernel: a virtual machine for wl
+//
+//   - threaded code
+//   - stack based
+//
 #ifdef wl_kernel_h
 #define wl_kernel_h
 
@@ -25,7 +29,10 @@ typedef struct WlObject {
       WlObject* car;
       WlObject* cdr;
     };
-    // TODO: proc
+    struct {        // proc
+      int p_size;
+      struct WlObject** program;
+    };
   }
 } WlObject;
 
@@ -34,10 +41,20 @@ typedef struct WlStack {
   WlObject** stack;
 } WlStack;
 
+int wl_stack_push(WlStack* s, const WlObject* o);
+WlObject* wl_stack_pop(WlStack* s);
+WlObject* wl_stack_peek(WlStack* s);
+int wl_stack_full_p(WlStack* s);
+void wl_stack_resize(WlStack* s);
+
 typedef struct WlKernelVM {
   unsigned int pc;
-  int* program;
+  WlObject* program;
   WlStack* dstack;
+  WlStack* rstack;
+  WlStack* cstack;
 } WlKernelVM;
+
+WlKernelVM* wl_init_kernel();
 
 #endif
