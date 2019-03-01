@@ -4,12 +4,14 @@ He buried it to me, it's a nice walnut.
 
 ## Goals
 
-- [ ] hash-tables
+- [x] integer
+- [ ] stacks (for VM)
+- [ ] virtual machine
 - [ ] arrays
 - [ ] conses
-- [ ] virtual machine
 - [ ] evaluator
 - [ ] reader
+- [ ] hash-tables (in Lisp)
 - [ ] package
 - [ ] timer library
 - [ ] macro system
