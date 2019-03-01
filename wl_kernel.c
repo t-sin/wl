@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include"wl_kernel.h"
 
-void print_obj(const WlObject* o) {
+void print_obj(const WlCell* o) {
   if (o == NULL) {
     printf("NULL");
     return;
@@ -36,7 +36,7 @@ void print_stack(const WlStack* s) {
 }
 
 int main(void) {
-  WlObject o1, o2;
+  WlCell o1, o2;
   WlStack* s;
   o1.type = WL_TYPE_INT;
   o1.num = 1;

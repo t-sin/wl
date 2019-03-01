@@ -20,7 +20,7 @@ typedef enum {
   WL_TYPE_PROC
 } WlType;
 
-typedef struct WlObject {
+typedef struct WlCell {
   WlType type;
 
   union {
@@ -28,32 +28,32 @@ typedef struct WlObject {
     struct {        // array
       WlType a_type;
       int a_size;
-      struct WlObject* array;
+      struct WlCell* array;
     };
     char* name;     // symbol
     struct {        // cons
-      struct WlObject* car;
-      struct WlObject* cdr;
+      struct WlCell* car;
+      struct WlCell* cdr;
     };
     struct {        // proc
       int p_size;
-      struct WlObject** program;
+      struct WlCell** program;
     };
   };
-} WlObject;
+} WlCell;
 
 // stack
 typedef struct WlStack {
   int top;
   int size;
-  WlObject** stack;
+  WlCell** stack;
 } WlStack;
 
 WlStack* wl_init_stack(int size) {
   WlStack* stack = (WlStack*)malloc(sizeof(WlStack));
   stack->size = size;
   stack->top = -1;
-  stack->stack = (WlObject**)malloc(sizeof(WlObject) * size);
+  stack->stack = (WlCell**)malloc(sizeof(WlCell) * size);
   return stack;
 }
 
@@ -62,7 +62,7 @@ int wl_stack_full_p(WlStack* s) {
 }
 
 void wl_stack_resize(WlStack* s, int new_size) {
-  WlObject** new_stack = (WlObject**)malloc(sizeof(WlObject) * new_size);
+  WlCell** new_stack = (WlCell**)malloc(sizeof(WlCell) * new_size);
   for (int i=0; i<=s->top; i++) {
     new_stack[i] = s->stack[i];
   }
@@ -71,7 +71,7 @@ void wl_stack_resize(WlStack* s, int new_size) {
   s->stack = new_stack;
 }
 
-void wl_stack_push(WlStack* s, WlObject* o) {
+void wl_stack_push(WlStack* s, WlCell* o) {
   if (wl_stack_full_p(s)) {
     wl_stack_resize(s, s->size + 1000);
   }
@@ -79,13 +79,13 @@ void wl_stack_push(WlStack* s, WlObject* o) {
   s->stack[s->top] = o;
 }
 
-WlObject* wl_stack_pop(WlStack* s) {
+WlCell* wl_stack_pop(WlStack* s) {
   if (s->top == -1) {
     return NULL;
   }
   return s->stack[s->top--];
 }
-WlObject* wl_stack_peek(WlStack* s) {
+WlCell* wl_stack_peek(WlStack* s) {
   if (s->top == -1) {
     return NULL;
   }
@@ -95,7 +95,7 @@ WlObject* wl_stack_peek(WlStack* s) {
 // VM
 typedef struct WlKernelVM {
   unsigned int pc;
-  WlObject* program;
+  WlCell* program;
   WlStack* dstack;
   WlStack* rstack;
   WlStack* cstack;
