@@ -2,15 +2,16 @@
 
 He buried it to me, it's a nice walnut.
 
-## Goals
+## TODOs
 
 - [x] integer
-- [ ] stacks (for VM)
-- [ ] virtual machine
+- [x] stacks (for VM)
+- [x] virtual machine (kernel)
 - [ ] arrays
 - [ ] conses
-- [ ] evaluator
-- [ ] reader
+- [ ] evaluator (endocarp)
+- [ ] reader (mesocarp)
+- [ ] CLI interface (exocarp)
 - [ ] hash-tables (in Lisp)
 - [ ] package
 - [ ] timer library
