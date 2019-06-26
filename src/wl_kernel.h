@@ -24,10 +24,10 @@ struct WlCell {
 void print_cell(const struct WlCell* c);
 
 struct WlStack {
-    uint32_t top;
+    int32_t top;
     uint32_t size;
+    struct WlCell** stack;
 };
-
 
 void print_stack(const struct WlStack* s);
 struct WlStack* wl_init_stack(uint32_t size);
@@ -39,9 +39,18 @@ struct WlCell* wl_stack_peek(struct WlStack* s);
 
 struct WlDict {
     char* name;
-    char* bytecode; 
-    struct WlCell data;
     struct WlDict* next;
+    struct WlCell data;
+    char* bytecode; 
+};
+
+void print_dict(const struct WlDict* dict);
+struct WlDict* dict_find(struct WlDict* dict, char* name);
+
+struct WlVm {
+    struct WlDict* dict;
+    struct WlStack* dstack;
+    struct WlStack* rstack;
 };
 
 #endif
