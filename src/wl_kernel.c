@@ -85,7 +85,7 @@ void print_dict(const struct WlDict* dict) {
     while (d != NULL) {
         printf(" * %s, ", d->name);
         print_cell(&d->data);
-        printf(", %d\n", d->code);
+        //printf(", %d\n", d->code);
         d = d->next;
     }
 }
