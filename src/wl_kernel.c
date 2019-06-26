@@ -20,7 +20,10 @@ void print_cell(const struct WlCell* c) {
         printf("<name: %s>", c->u.name);
         break;
     case WL_CELL_PROC:
-        printf("<proc: %d>", c->u.num);
+        printf("<proc: %ld>", (long int)c->u.code);
+        break;
+    case WL_CELL_IP:
+        printf("<ip: %d>", c->u.ip->pos);
         break;
     }
 }
@@ -221,69 +224,93 @@ void print_token(struct WlToken* token) {
     }
 }
 
-struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens, int* tp) {
-    struct WlCell** program = (struct WlCell**)malloc(sizeof(struct WlCell*) * 1024);
-    struct WlCell* c;
+struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens) {
+    struct WlStack* cstack = wl_init_stack(1024);
+    struct WlCell* ip = (struct WlCell*)malloc(sizeof(struct WlCell));
+    ip->type = WL_CELL_IP;
+    ip->u.ip = (struct WlIp*)malloc(sizeof(struct WlIp));
+    ip->u.ip->pos = 0;
+    ip->u.ip->code = (struct WlCell**)malloc(sizeof(struct WlCell*) * 1024);
+    wl_stack_push(cstack, ip);
+
+    struct WlCell* c, *ip_tmp;
     struct WlDict* dict;
-    int ip = 0;
-    for (; tokens[*tp] != NULL; (*tp)++) {
-        struct WlToken* t = tokens[*tp];
+
+    for (int i=0; tokens[i] != NULL; i++) {
+        struct WlToken* t = tokens[i];
         switch (t->type) {
         case WL_TOKEN_NUMBER:
             c = (struct WlCell*)malloc(sizeof(struct WlCell));
             c->type = WL_CELL_INT;
             c->u.num = t->u.num;
-            program[ip++] = c;
+            ip_tmp = wl_stack_peek(cstack);
+            ip_tmp->u.ip->code[ip_tmp->u.ip->pos++] = c;
             break;
 
         case WL_TOKEN_CHAR:
             c = (struct WlCell*)malloc(sizeof(struct WlCell));
             c->type = WL_CELL_CHAR;
             c->u.num = t->u.ch;
-            program[ip++] = c;
+            ip_tmp = wl_stack_peek(cstack);
+            ip_tmp->u.ip->code[ip_tmp->u.ip->pos++] = c;
             break;
 
         case WL_TOKEN_NAME:
+            ip_tmp = wl_stack_peek(cstack);
             dict = dict_find(vm->dict, t->u.name);
             if (dict == NULL) {
                 printf("proc '%s' is not found!\n", t->u.name);
-                return program;
+                return ip_tmp->u.ip->code;
             }
             c = (struct WlCell*)malloc(sizeof(struct WlCell));
             c->type = WL_CELL_PROC;
             c->u.code = dict->code;
-            program[ip++] = c;
+            ip_tmp = wl_stack_peek(cstack);
+            ip_tmp->u.ip->code[ip_tmp->u.ip->pos++] = c;
             break;
 
         case WL_TOKEN_LIT_NAME:
             c = (struct WlCell*)malloc(sizeof(struct WlCell));
             c->type = WL_CELL_NAME;
             c->u.name = t->u.name;
-            program[ip++] = c;
+            ip_tmp = wl_stack_peek(cstack);
+            ip_tmp->u.ip->code[ip_tmp->u.ip->pos++] = c;
             break;
 
         case WL_TOKEN_OPEN_CURLY:
-            (*tp)++;
-            c = (struct WlCell*)malloc(sizeof(struct WlCell));
-            c->type = WL_CELL_PROC;
-            // TODO: remove recursion
-            //   push current compiling program to stack
-            c->u.code = wl_compile(vm, tokens, tp);
-            program[ip++] = c;
+            ip = (struct WlCell*)malloc(sizeof(struct WlCell));
+            ip->type = WL_CELL_IP;
+            ip->u.ip = (struct WlIp*)malloc(sizeof(struct WlIp));
+            ip->u.ip->pos = 0;
+            ip->u.ip->code = (struct WlCell**)malloc(sizeof(struct WlCell*) * 1024);
+            wl_stack_push(cstack, ip);
+
+            ip_tmp = wl_stack_peek(cstack);
+            ip_tmp->u.ip->code[ip_tmp->u.ip->pos++] = c;
             break;
 
         case WL_TOKEN_CLOSE_CURLY:
-            // TODO: remove recursion
-            //   pop previous compiling program from stack
-            program[ip++] = NULL;
-            return program;
+            ip_tmp = wl_stack_pop(cstack);
+            if (ip_tmp == NULL) {
+                printf("too many '}'\n");
+                return NULL;
+            }
+            c = (struct WlCell*)malloc(sizeof(struct WlCell));
+            c->type = WL_CELL_PROC;
+            c->u.code = ip_tmp->u.ip->code;
+
+            ip_tmp = wl_stack_peek(cstack);
+            ip_tmp->u.ip->code[ip_tmp->u.ip->pos++] = c;
+            break;
 
         default:
-            ip++;
+            ip_tmp = wl_stack_peek(cstack);
+            ip_tmp->u.ip->pos++;
         }
     }
-    program[ip] == NULL;
-    return program;
+    ip_tmp = wl_stack_peek(cstack);
+    ip_tmp->u.ip->code[ip_tmp->u.ip->pos] = NULL;
+    return ip_tmp->u.ip->code;
 }
 
 void wl_eval(struct WlVm* vm) {
@@ -291,6 +318,7 @@ void wl_eval(struct WlVm* vm) {
     switch (c->type) {
     case WL_CELL_INT:
     case WL_CELL_NAME:
+    case WL_CELL_PROC:
         wl_stack_push(vm->dstack, c);
         break;
     case WL_CELL_CHAR:
@@ -299,7 +327,7 @@ void wl_eval(struct WlVm* vm) {
         break;
     case WL_CELL_BUILTIN:
         break;
-    case WL_CELL_PROC:
+    case WL_CELL_IP:
         break;
     }
 }

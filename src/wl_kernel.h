@@ -10,10 +10,17 @@ enum WlCellType {
     WL_CELL_STR,
     WL_CELL_NAME,
     WL_CELL_BUILTIN,
-    WL_CELL_PROC
+    WL_CELL_PROC,
+    WL_CELL_IP,
 };
 
+struct WlCell;
 struct WlVm;
+
+struct WlIp {
+    struct WlCell** code;
+    uint32_t pos;
+};
 
 struct WlCell {
     enum WlCellType type;
@@ -24,6 +31,7 @@ struct WlCell {
         char* name;
         struct WlCell** code;
         void (*builtin)(struct WlVm* vm);
+        struct WlIp* ip;
     } u;
 };
 
@@ -98,7 +106,7 @@ struct WlVm* wl_init_vm();
 
 void vm_create_dict(struct WlVm* vm);
 
-struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens, int* ip);
+struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens);
 void wl_eval(struct WlVm* vm);
 
 #endif
