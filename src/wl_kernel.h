@@ -13,6 +13,8 @@ enum WlCellType {
     WL_CELL_PROC
 };
 
+struct WlVm;
+
 struct WlCell {
     enum WlCellType type;
     union {
@@ -21,6 +23,7 @@ struct WlCell {
         char* str;
         char* name;
         struct WlCell** code;
+        void (*builtin)(struct WlVm* vm);
     } u;
 };
 

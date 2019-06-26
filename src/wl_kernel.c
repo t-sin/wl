@@ -281,6 +281,8 @@ void wl_eval(struct WlVm* vm) {
         break;
     case WL_CELL_STR:
         break;
+    case WL_CELL_BUILTIN:
+        break;
     case WL_CELL_PROC:
         break;
     }
