@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +15,9 @@ void print_cell(const struct WlCell* c) {
         break;
     case WL_CELL_TYPE_STR:
         printf("<str: %s>", c->u.str);
+        break;
+    case WL_CELL_TYPE_NAME:
+        printf("<name: %s>", c->u.name);
         break;
     case WL_CELL_TYPE_PROC:
         printf("<proc: %d>", c->u.num);
@@ -81,7 +85,7 @@ void print_dict(const struct WlDict* dict) {
     while (d != NULL) {
         printf(" * %s, ", d->name);
         print_cell(&d->data);
-        printf(", %d\n", d->bytecode);
+        printf(", %d\n", d->code);
         d = d->next;
     }
 }
@@ -97,13 +101,120 @@ struct WlDict* dict_find(struct WlDict* dict, char* name) {
     return NULL;
 }
 
-int main() {
-    struct WlCell c = { WL_CELL_TYPE_INT, 42 };
-    struct WlCell c2 = { WL_CELL_TYPE_CHAR, 42 };
-    struct WlStack* stack = wl_init_stack(10);
+int wl_stream_peek(struct WlStream* s) {
+    if (s->idx < s->len) {
+        return s->buf[s->idx];
+    } else {
+        return EOF;
+    }
+}
 
-    struct WlDict d1 = { "name", NULL, c, NULL };
-    struct WlDict d2 = { "top", &d1, c2, NULL };
+int wl_stream_read(struct WlStream* s) {
+    if (s->idx < s->len) {
+        return s->buf[s->idx++];
+    } else {
+        return EOF;
+    }
+}
 
-    print_dict(dict_find(&d2, "name"));
+struct WlVm* wl_init_vm() {
+    struct WlVm* vm = (struct WlVm*)malloc(sizeof(struct WlVm));
+    vm->dict = NULL;
+    vm->dstack = wl_init_stack(1024);
+    vm->rstack = wl_init_stack(1024);
+    vm_create_dict(vm);
+    return vm;
+}
+
+void vm_create_dict(struct WlVm* vm) {
+    struct WlDict* dict = (struct WlDict*)malloc(sizeof(struct WlDict));
+    dict->name = NULL;
+    dict->next = vm->dict;
+    dict->code = NULL;
+    vm->dict = dict;
+}
+
+struct WlToken* wl_parse_one(struct WlStream* s) {
+    int ch = wl_stream_peek(s);
+    int idx = 0;
+    char* name;
+
+    if (ch == ' ') {
+        wl_stream_read(s);
+        while ((ch = wl_stream_peek(s)) == ' ') {
+            wl_stream_read(s);
+        }
+    }
+
+    if (ch == EOF) {
+        return NULL;
+
+    } else if (ch == '{') {
+        wl_stream_read(s);
+        struct WlToken* token = (struct WlToken*)malloc(sizeof(struct WlToken));
+        token->type = WL_TOKEN_OPEN_CURLY;
+        return token;
+
+    } else if (ch == '}') {
+        wl_stream_read(s);
+        struct WlToken* token = (struct WlToken*)malloc(sizeof(struct WlToken));
+        token->type = WL_TOKEN_CLOSE_CURLY;
+        return token;
+
+    } else if (ch == '/') {
+        wl_stream_read(s);
+        name = (char*)malloc(sizeof(char) * NAME_LENGTH);
+        memset(name, 0, sizeof(char) * NAME_LENGTH);
+        while (isalpha(ch = wl_stream_peek(s))) {
+            name[idx++] = wl_stream_read(s);
+        }
+        struct WlToken* token = (struct WlToken*)malloc(sizeof(struct WlToken));
+        token->type = WL_TOKEN_LIT_NAME;
+        token->u.str = name;
+        return token;
+
+    } else if (isalpha(ch)) {
+        name = (char*)malloc(sizeof(char) * NAME_LENGTH);
+        memset(name, 0, sizeof(char) * NAME_LENGTH);
+        do {
+            name[idx++] = wl_stream_read(s);
+        } while (isalpha(ch = wl_stream_peek(s)));
+        struct WlToken* token = (struct WlToken*)malloc(sizeof(struct WlToken));
+        token->type = WL_TOKEN_NAME;
+        token->u.str = name;
+        return token;
+
+    } else if (isdigit(ch)) {
+        name = (char*)malloc(sizeof(char) * NAME_LENGTH);
+        memset(name, 0, sizeof(char) * NAME_LENGTH);
+        do {
+            name[idx++] = wl_stream_read(s);
+        } while (isdigit(ch = wl_stream_peek(s)));
+        struct WlToken* token = (struct WlToken*)malloc(sizeof(struct WlToken));
+        token->type = WL_TOKEN_NUMBER;
+        token->u.num = atoi(name);
+        return token;
+
+    } else {
+        return NULL;
+    }
+}
+
+void print_token(struct WlToken* token) {
+    switch (token->type) {
+    case WL_TOKEN_NUMBER:
+        printf("%d", token->u.num); break;
+    case WL_TOKEN_CHAR:
+        printf("'%c'", token->u.ch); break;
+    case WL_TOKEN_NAME:
+        printf("%s", token->u.name); break;
+    case WL_TOKEN_LIT_NAME:
+        printf("/%s", token->u.name); break;
+    case WL_TOKEN_OPEN_CURLY:
+        printf("{"); break;
+    case WL_TOKEN_CLOSE_CURLY:
+        printf("}"); break;
+    case WL_TOKEN_NONE:
+        ;
+    }
 }
