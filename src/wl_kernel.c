@@ -221,13 +221,13 @@ void print_token(struct WlToken* token) {
     }
 }
 
-struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens) {
+struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens, int* tp) {
     struct WlCell** program = (struct WlCell**)malloc(sizeof(struct WlCell*) * 1024);
     struct WlCell* c;
     struct WlDict* dict;
     int ip = 0;
-    for (int i=0; tokens[i] != NULL; i++) {
-        struct WlToken* t = tokens[i];
+    for (; tokens[*tp] != NULL; (*tp)++) {
+        struct WlToken* t = tokens[*tp];
         switch (t->type) {
         case WL_TOKEN_NUMBER:
             c = (struct WlCell*)malloc(sizeof(struct WlCell));
@@ -262,6 +262,22 @@ struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens) {
             program[ip++] = c;
             break;
 
+        case WL_TOKEN_OPEN_CURLY:
+            (*tp)++;
+            c = (struct WlCell*)malloc(sizeof(struct WlCell));
+            c->type = WL_CELL_PROC;
+            // TODO: remove recursion
+            //   push current compiling program to stack
+            c->u.code = wl_compile(vm, tokens, tp);
+            program[ip++] = c;
+            break;
+
+        case WL_TOKEN_CLOSE_CURLY:
+            // TODO: remove recursion
+            //   pop previous compiling program from stack
+            program[ip++] = NULL;
+            return program;
+
         default:
             ip++;
         }
@@ -271,7 +287,7 @@ struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens) {
 }
 
 void wl_eval(struct WlVm* vm) {
-    struct WlCell* c = NULL;
+    struct WlCell* c = vm->program[vm->ip++];
     switch (c->type) {
     case WL_CELL_INT:
     case WL_CELL_NAME:

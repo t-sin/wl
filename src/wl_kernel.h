@@ -98,7 +98,7 @@ struct WlVm* wl_init_vm();
 
 void vm_create_dict(struct WlVm* vm);
 
-struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens);
+struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens, int* ip);
 void wl_eval(struct WlVm* vm);
 
 #endif
