@@ -19,7 +19,7 @@ struct WlCell {
         char ch;
         char* str;
         char* name;
-        uint8_t* code;
+        struct WlCell** code;
     } u;
 };
 
@@ -43,7 +43,7 @@ struct WlDict {
     char* name;
     struct WlDict* next;
     struct WlCell data;
-    uint8_t* code;
+    struct WlCell** code;
 };
 
 void print_dict(const struct WlDict* dict);
