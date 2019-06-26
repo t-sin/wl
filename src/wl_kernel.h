@@ -5,11 +5,12 @@
 #include <stdbool.h>
 
 enum WlCellType {
-    WL_CELL_TYPE_INT,
-    WL_CELL_TYPE_CHAR,
-    WL_CELL_TYPE_STR,
-    WL_CELL_TYPE_NAME,
-    WL_CELL_TYPE_PROC
+    WL_CELL_INT,
+    WL_CELL_CHAR,
+    WL_CELL_STR,
+    WL_CELL_NAME,
+    WL_CELL_BUILTIN,
+    WL_CELL_PROC
 };
 
 struct WlCell {

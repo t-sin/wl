@@ -7,19 +7,19 @@
 
 void print_cell(const struct WlCell* c) {
     switch (c->type) {
-    case WL_CELL_TYPE_INT:
+    case WL_CELL_INT:
         printf("<int: %d>", c->u.num);
         break;
-    case WL_CELL_TYPE_CHAR:
+    case WL_CELL_CHAR:
         printf("<ch: %c>", c->u.ch);
         break;
-    case WL_CELL_TYPE_STR:
+    case WL_CELL_STR:
         printf("<str: %s>", c->u.str);
         break;
-    case WL_CELL_TYPE_NAME:
+    case WL_CELL_NAME:
         printf("<name: %s>", c->u.name);
         break;
-    case WL_CELL_TYPE_PROC:
+    case WL_CELL_PROC:
         printf("<proc: %d>", c->u.num);
         break;
     }
@@ -231,14 +231,14 @@ struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens) {
         switch (t->type) {
         case WL_TOKEN_NUMBER:
             c = (struct WlCell*)malloc(sizeof(struct WlCell));
-            c->type = WL_CELL_TYPE_INT;
+            c->type = WL_CELL_INT;
             c->u.num = t->u.num;
             program[ip++] = c;
             break;
 
         case WL_TOKEN_CHAR:
             c = (struct WlCell*)malloc(sizeof(struct WlCell));
-            c->type = WL_CELL_TYPE_CHAR;
+            c->type = WL_CELL_CHAR;
             c->u.num = t->u.ch;
             program[ip++] = c;
             break;
@@ -250,14 +250,14 @@ struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens) {
                 return program;
             }
             c = (struct WlCell*)malloc(sizeof(struct WlCell));
-            c->type = WL_CELL_TYPE_PROC;
+            c->type = WL_CELL_PROC;
             c->u.code = dict->code;
             program[ip++] = c;
             break;
 
         case WL_TOKEN_LIT_NAME:
             c = (struct WlCell*)malloc(sizeof(struct WlCell));
-            c->type = WL_CELL_TYPE_NAME;
+            c->type = WL_CELL_NAME;
             c->u.name = t->u.name;
             program[ip++] = c;
             break;
@@ -273,15 +273,15 @@ struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens) {
 void wl_eval(struct WlVm* vm) {
     struct WlCell* c = NULL;
     switch (c->type) {
-    case WL_CELL_TYPE_INT:
-    case WL_CELL_TYPE_NAME:
+    case WL_CELL_INT:
+    case WL_CELL_NAME:
         wl_stack_push(vm->dstack, c);
         break;
-    case WL_CELL_TYPE_CHAR:
+    case WL_CELL_CHAR:
         break;
-    case WL_CELL_TYPE_STR:
+    case WL_CELL_STR:
         break;
-    case WL_CELL_TYPE_PROC:
+    case WL_CELL_PROC:
         break;
     }
 }
