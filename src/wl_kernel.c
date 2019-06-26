@@ -308,6 +308,11 @@ struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens) {
             ip_tmp->u.ip->pos++;
         }
     }
+
+    if (cstack->top > 0) {
+        printf("too many '{'\n");
+        return NULL;
+    }
     ip_tmp = wl_stack_peek(cstack);
     ip_tmp->u.ip->code[ip_tmp->u.ip->pos] = NULL;
     return ip_tmp->u.ip->code;
