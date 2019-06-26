@@ -119,10 +119,12 @@ int wl_stream_read(struct WlStream* s) {
 
 struct WlVm* wl_init_vm() {
     struct WlVm* vm = (struct WlVm*)malloc(sizeof(struct WlVm));
+    vm->ip = 0;
     vm->dict = NULL;
     vm->dstack = wl_init_stack(1024);
     vm->rstack = wl_init_stack(1024);
     vm_create_dict(vm);
+    vm->dict->name = "[dict-bottom]";
     return vm;
 }
 
@@ -216,5 +218,70 @@ void print_token(struct WlToken* token) {
         printf("}"); break;
     case WL_TOKEN_NONE:
         ;
+    }
+}
+
+struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens) {
+    struct WlCell** program = (struct WlCell**)malloc(sizeof(struct WlCell*) * 1024);
+    struct WlCell* c;
+    struct WlDict* dict;
+    int ip = 0;
+    for (int i=0; tokens[i] != NULL; i++) {
+        struct WlToken* t = tokens[i];
+        switch (t->type) {
+        case WL_TOKEN_NUMBER:
+            c = (struct WlCell*)malloc(sizeof(struct WlCell));
+            c->type = WL_CELL_TYPE_INT;
+            c->u.num = t->u.num;
+            program[ip++] = c;
+            break;
+
+        case WL_TOKEN_CHAR:
+            c = (struct WlCell*)malloc(sizeof(struct WlCell));
+            c->type = WL_CELL_TYPE_CHAR;
+            c->u.num = t->u.ch;
+            program[ip++] = c;
+            break;
+
+        case WL_TOKEN_NAME:
+            dict = dict_find(vm->dict, t->u.name);
+            if (dict == NULL) {
+                printf("proc '%s' is not found!\n", t->u.name);
+                return program;
+            }
+            c = (struct WlCell*)malloc(sizeof(struct WlCell));
+            c->type = WL_CELL_TYPE_PROC;
+            c->u.code = dict->code;
+            program[ip++] = c;
+            break;
+
+        case WL_TOKEN_LIT_NAME:
+            c = (struct WlCell*)malloc(sizeof(struct WlCell));
+            c->type = WL_CELL_TYPE_NAME;
+            c->u.name = t->u.name;
+            program[ip++] = c;
+            break;
+
+        default:
+            ip++;
+        }
+    }
+    program[ip] == NULL;
+    return program;
+}
+
+void wl_eval(struct WlVm* vm) {
+    struct WlCell* c = NULL;
+    switch (c->type) {
+    case WL_CELL_TYPE_INT:
+    case WL_CELL_TYPE_NAME:
+        wl_stack_push(vm->dstack, c);
+        break;
+    case WL_CELL_TYPE_CHAR:
+        break;
+    case WL_CELL_TYPE_STR:
+        break;
+    case WL_CELL_TYPE_PROC:
+        break;
     }
 }

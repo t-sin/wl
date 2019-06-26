@@ -83,6 +83,8 @@ struct WlToken* wl_parse_one(struct WlStream* s);
 void print_token(struct WlToken* token);
 
 struct WlVm {
+    struct WlCell** program;
+    int ip;
     struct WlDict* dict;
     struct WlStack* dstack;
     struct WlStack* rstack;
@@ -92,7 +94,7 @@ struct WlVm* wl_init_vm();
 
 void vm_create_dict(struct WlVm* vm);
 
-uint8_t* wl_compile(struct WlToken* tokens);
+struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens);
 void wl_eval(struct WlVm* vm);
 
 #endif

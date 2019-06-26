@@ -15,14 +15,6 @@ int main() {
         tokens[i++] = t;
     } while (t != NULL);
 
-    for (i=0; tokens[i] != NULL; i++) {
-        print_token(tokens[i]);
-        printf(" ");
-    }
-    printf("\n");
-
-    // struct WlCell c = { WL_CELL_TYPE_INT, 42 };
-    // struct WlCell c2 = { WL_CELL_TYPE_CHAR, 42 };
-
-    // struct WlVm* vm = wl_init_vm();
+    struct WlVm* vm = wl_init_vm();
+    vm->program = wl_compile(vm, tokens);
 }
