@@ -191,7 +191,7 @@ struct WlToken* wl_parse_one(struct WlStream* s) {
         wl_stream_read(s);
         name = (char*)malloc(sizeof(char) * NAME_LENGTH);
         memset(name, 0, sizeof(char) * NAME_LENGTH);
-        while (isalpha(ch = wl_stream_peek(s))) {
+        while (isalnum(ch = wl_stream_peek(s))) {
             name[idx++] = wl_stream_read(s);
         }
         struct WlToken* token = (struct WlToken*)malloc(sizeof(struct WlToken));
@@ -199,28 +199,27 @@ struct WlToken* wl_parse_one(struct WlStream* s) {
         token->u.str = name;
         return token;
 
-    } else if (isalpha(ch)) {
-        name = (char*)malloc(sizeof(char) * NAME_LENGTH);
-        memset(name, 0, sizeof(char) * NAME_LENGTH);
-        do {
-            name[idx++] = wl_stream_read(s);
-        } while (isalpha(ch = wl_stream_peek(s)));
-        struct WlToken* token = (struct WlToken*)malloc(sizeof(struct WlToken));
-        token->type = WL_TOKEN_NAME;
-        token->u.str = name;
-        return token;
-
     } else if (isdigit(ch)) {
         name = (char*)malloc(sizeof(char) * NAME_LENGTH);
         memset(name, 0, sizeof(char) * NAME_LENGTH);
-        do {
+        while (isdigit(ch = wl_stream_peek(s))) {
             name[idx++] = wl_stream_read(s);
-        } while (isdigit(ch = wl_stream_peek(s)));
+        }
         struct WlToken* token = (struct WlToken*)malloc(sizeof(struct WlToken));
         token->type = WL_TOKEN_NUMBER;
         token->u.num = atoi(name);
         return token;
 
+    } else if (isgraph(ch)) {
+        name = (char*)malloc(sizeof(char) * NAME_LENGTH);
+        memset(name, 0, sizeof(char) * NAME_LENGTH);
+        while (isgraph(ch = wl_stream_peek(s))) {
+            name[idx++] = wl_stream_read(s);
+        }
+        struct WlToken* token = (struct WlToken*)malloc(sizeof(struct WlToken));
+        token->type = WL_TOKEN_NAME;
+        token->u.str = name;
+        return token;
     } else {
         return NULL;
     }
