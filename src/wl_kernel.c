@@ -128,6 +128,22 @@ void vm_op_pstack(struct WlVm* vm) {
     printf("\n");
 }
 
+void vm_op_plus(struct WlVm* vm) {
+    struct WlCell *o1, *o2;
+    o1 = wl_stack_pop(vm->dstack);
+    o2 = wl_stack_pop(vm->dstack);
+    if (o1->type == WL_CELL_INT && o2->type == WL_CELL_INT) {
+        struct WlCell *result = (struct WlCell*)malloc(sizeof(struct WlCell));
+        result->type = WL_CELL_INT;
+        result->u.num = o1->u.num + o2->u.num;
+        wl_stack_push(vm->dstack, result);
+    } else {
+        printf("operand is not int\n");
+        printf("  "); print_cell(o1); printf("\n");
+        printf("  "); print_cell(o2); printf("\n");
+    }
+}
+
 void wl_init_dict(struct WlVm* vm) {
     // print stack
     vm_create_dict(vm);
@@ -135,6 +151,12 @@ void wl_init_dict(struct WlVm* vm) {
     vm->dict->code = (struct WlCell*)malloc(sizeof(struct WlCell));
     vm->dict->code->type = WL_CELL_BUILTIN;
     vm->dict->code->u.builtin = vm_op_pstack;
+
+    vm_create_dict(vm);
+    vm->dict->name = "+";
+    vm->dict->code = (struct WlCell*)malloc(sizeof(struct WlCell));
+    vm->dict->code->type = WL_CELL_BUILTIN;
+    vm->dict->code->u.builtin = vm_op_plus;
 };
 
 struct WlVm* wl_init_vm() {
