@@ -120,6 +120,20 @@ int wl_stream_read(struct WlStream* s) {
     }
 }
 
+void vm_op_pstack(struct WlVm* vm) {
+    print_stack(vm->dstack);
+    printf("\n");
+}
+
+void wl_init_dict(struct WlVm* vm) {
+    // print stack
+    vm_create_dict(vm);
+    vm->dict->name = ".s";
+    vm->dict->code = (struct WlCell*)malloc(sizeof(struct WlCell));
+    vm->dict->code->type = WL_CELL_BUILTIN;
+    vm->dict->code->u.builtin = vm_op_pstack;
+};
+
 struct WlVm* wl_init_vm() {
     struct WlVm* vm = (struct WlVm*)malloc(sizeof(struct WlVm));
     vm->ip = (struct WlCell*)malloc(sizeof(struct WlCell));
@@ -267,8 +281,13 @@ struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens) {
                 return ip_tmp->u.ip->code;
             }
             c = (struct WlCell*)malloc(sizeof(struct WlCell));
-            c->type = WL_CELL_PROC;
-            c->u.code = dict->code;
+            if (dict->code->type == WL_CELL_PROC) {
+                c->type = WL_CELL_PROC;
+                c->u.code = dict->code->u.code;
+            } else { // WL_CELL_BULTIN
+                c->type = WL_CELL_BUILTIN;
+                c->u.builtin = dict->code->u.builtin;
+            }
             ip_tmp = wl_stack_peek(cstack);
             ip_tmp->u.ip->code[ip_tmp->u.ip->pos++] = c;
             break;
@@ -340,6 +359,8 @@ void wl_eval(struct WlVm* vm) {
         case WL_CELL_STR:
             break;
         case WL_CELL_BUILTIN:
+            printf("builtin!!");
+            c->u.builtin(vm);
             break;
         case WL_CELL_IP:
             break;

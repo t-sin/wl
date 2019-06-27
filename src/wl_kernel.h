@@ -55,7 +55,7 @@ struct WlDict {
     char* name;
     struct WlDict* next;
     struct WlCell data;
-    struct WlCell** code;
+    struct WlCell* code;
 };
 
 void print_dict(const struct WlDict* dict);

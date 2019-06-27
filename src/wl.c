@@ -5,7 +5,7 @@
 
 int main() {
     struct WlToken* tokens[100];
-    char input[] = "/test { 1 } { 1 { 2 } 3 } 2 3 4 5 6 7 8 9 0";
+    char input[] = "/test { 1 } .s { 1 { 2 } 3 } 2";
     printf("input: '%s'\n", input);
     struct WlStream stream = {0, sizeof(input), input};
 
