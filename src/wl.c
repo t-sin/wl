@@ -5,7 +5,7 @@
 
 int main() {
     struct WlToken* tokens[100];
-    char input[] = "/test { 1 } .s { 1 { 2 } 3 } 2";
+    char input[] = "/test { 1 } { 1 { 2 } 3 } 2 .s";
     printf("input: '%s'\n", input);
     struct WlStream stream = {0, sizeof(input), input};
 
@@ -17,9 +17,9 @@ int main() {
     } while (t != NULL);
 
     struct WlVm* vm = wl_init_vm();
+    wl_init_dict(vm);
     vm->ip->u.ip->pos = 0;
     vm->ip->u.ip->code = wl_compile(vm, tokens);
-    wl_eval(vm);
 
-    print_stack(vm->dstack);
+    wl_eval(vm);
 }

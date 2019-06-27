@@ -102,6 +102,7 @@ struct WlVm {
 };
 
 struct WlVm* wl_init_vm();
+void wl_init_dict(struct WlVm* vm);
 
 void vm_create_dict(struct WlVm* vm);
 
