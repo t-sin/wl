@@ -361,7 +361,6 @@ void wl_eval(struct WlVm* vm) {
         case WL_CELL_STR:
             break;
         case WL_CELL_BUILTIN:
-            printf("builtin!!");
             c->u.builtin(vm);
             break;
         case WL_CELL_IP:
