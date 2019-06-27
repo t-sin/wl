@@ -95,8 +95,7 @@ struct WlToken* wl_parse_one(struct WlStream* s);
 void print_token(struct WlToken* token);
 
 struct WlVm {
-    struct WlCell** program;
-    int ip;
+    struct WlCell* ip;
     struct WlDict* dict;
     struct WlStack* dstack;
     struct WlStack* rstack;

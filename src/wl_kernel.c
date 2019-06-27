@@ -122,7 +122,11 @@ int wl_stream_read(struct WlStream* s) {
 
 struct WlVm* wl_init_vm() {
     struct WlVm* vm = (struct WlVm*)malloc(sizeof(struct WlVm));
-    vm->ip = 0;
+    vm->ip = (struct WlCell*)malloc(sizeof(struct WlCell));
+    vm->ip->type = WL_CELL_IP;
+    vm->ip->u.ip = (struct WlIp*)malloc(sizeof(struct WlIp));
+    vm->ip->u.ip->pos = 0;
+    vm->ip->u.ip->code = NULL;
     vm->dict = NULL;
     vm->dstack = wl_init_stack(1024);
     vm->rstack = wl_init_stack(1024);
@@ -319,20 +323,26 @@ struct WlCell** wl_compile(struct WlVm* vm, struct WlToken** tokens) {
 }
 
 void wl_eval(struct WlVm* vm) {
-    struct WlCell* c = vm->program[vm->ip++];
-    switch (c->type) {
-    case WL_CELL_INT:
-    case WL_CELL_NAME:
-    case WL_CELL_PROC:
-        wl_stack_push(vm->dstack, c);
-        break;
-    case WL_CELL_CHAR:
-        break;
-    case WL_CELL_STR:
-        break;
-    case WL_CELL_BUILTIN:
-        break;
-    case WL_CELL_IP:
-        break;
+    struct WlStack* cstack = wl_init_stack(1024);
+    struct WlCell* ip = (struct WlCell*)malloc(sizeof(struct WlCell));
+    wl_stack_push(cstack, ip);
+
+    while (vm->ip->u.ip->code[vm->ip->u.ip->pos] != NULL) {
+        struct WlCell* c = vm->ip->u.ip->code[(vm->ip->u.ip->pos)++];
+        switch (c->type) {
+        case WL_CELL_INT:
+        case WL_CELL_NAME:
+        case WL_CELL_PROC:
+            wl_stack_push(vm->dstack, c);
+            break;
+        case WL_CELL_CHAR:
+            break;
+        case WL_CELL_STR:
+            break;
+        case WL_CELL_BUILTIN:
+            break;
+        case WL_CELL_IP:
+            break;
+        }
     }
 }
