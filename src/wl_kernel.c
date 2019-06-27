@@ -8,22 +8,25 @@
 void print_cell(const struct WlCell* c) {
     switch (c->type) {
     case WL_CELL_INT:
-        printf("<int: %d>", c->u.num);
+        printf("<int:%d>", c->u.num);
         break;
     case WL_CELL_CHAR:
-        printf("<ch: %c>", c->u.ch);
+        printf("<ch:%c>", c->u.ch);
         break;
     case WL_CELL_STR:
-        printf("<str: %s>", c->u.str);
+        printf("<str:%s>", c->u.str);
         break;
     case WL_CELL_NAME:
-        printf("<name: %s>", c->u.name);
+        printf("<name:%s>", c->u.name);
+        break;
+    case WL_CELL_BUILTIN:
+        printf("<builtin:%ld>", (long int)c->u.builtin);
         break;
     case WL_CELL_PROC:
-        printf("<proc: %ld>", (long int)c->u.code);
+        printf("<proc:%ld>", (long int)c->u.code);
         break;
     case WL_CELL_IP:
-        printf("<ip: %d>", c->u.ip->pos);
+        printf("<ip:%d>", c->u.ip->pos);
         break;
     }
 }
